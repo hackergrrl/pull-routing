@@ -47,6 +47,7 @@ module.exports = function () {
           const cb = route.cb
           route.cb = null
           cb(null, data)
+          break
         }
       }
 
