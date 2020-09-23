@@ -7,9 +7,16 @@
 // added. If you don't want this, you can add a catch-all route and discard
 // them.
 
+// TODO: way to control which streams ending/erroring should end the whole
+// router.
+
+const pull = require('pull-stream')
+
 module.exports = function () {
   let predicates = []
   let pendingRead = null
+
+  const id = String(Math.random()).substring(10)
 
   function allRoutesReady () {
     for (var i=0; i < predicates.length; i++) {
@@ -20,17 +27,30 @@ module.exports = function () {
   }
 
   const stream = function (read) {
+    console.log(id, 'checking all', predicates.length, 'routes:', allRoutesReady())
     if (!allRoutesReady()) {
+      console.log(id, 'routes aint ready!')
       pendingRead = () => {
         pendingRead = null
+        console.log(id, 'calling mah kid delayed')
         read(null, next)
       }
     } else {
+      console.log(id, 'calling mah kid immediatement')
       read(null, next)
     }
 
     function next (abort, data) {
-      // TODO: handle abort
+      // TODO: handle abort; this means passing the 'abort' value to ALL sink routes & ending
+      if (abort) {
+        console.log('src wanted to abort: shut er down boys!')
+        end = abort
+        predicates.forEach(route => {
+          if (route.cb) route.cb(abort)
+        })
+        predicates = null
+        return
+      }
 
       console.log('ROUTER: got', data)
 
@@ -41,6 +61,7 @@ module.exports = function () {
         if (route.fn(data)) {
           found = true
           pendingRead = () => {
+            console.log('ROUTER: pendingRead called! now reading from our source!')
             pendingRead = null
             read(null, next)
           }
@@ -53,27 +74,46 @@ module.exports = function () {
 
       if (!found) {
         console.log('ROUTER: no route for data')
+        pendingRead = () => {
+          console.log('ROUTER: pendingRead called! now reading from our source!')
+          pendingRead = null
+          read(null, next)
+        }
       }
     }
   }
 
+  function removeRoute (id) {
+    predicates = predicates.filter(route => route.id !== id)
+  }
+
   stream.addRoute = function (predicateFn, sink) {
+    const fakeSource = function (abort, cb) {
+      if (abort) {
+        removeRoute(route.id)
+        return
+      }
+
+      route.cb = cb
+      console.log(id, 'ROUTER: route called its virtual router sink!', allRoutesReady(), !!pendingRead)
+      if (allRoutesReady() && pendingRead) {
+        pendingRead()
+      }
+    }
+
     const route = {
+      id: String(Math.random()).substring(8),
       fn: predicateFn,
-      sink,
       cb: null
     }
     predicates.push(route)
 
-    sink(function (abort, cb) {
-      // TODO: handle abort
+    const stream = pull(
+      fakeSource,
+      sink
+    )
 
-      route.cb = cb
-
-      if (allRoutesReady() && pendingRead) {
-        pendingRead()
-      }
-    })
+    return stream
   }
 
   return stream

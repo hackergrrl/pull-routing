@@ -4,5 +4,14 @@
   "author": "Kira Oakley <kira@eight.net>",
   "version": "0.0.0",
   "main": "index.js",
-  "license": "MIT"
+  "license": "MIT",
+  "scripts": {
+    "test": "tape test/*.js"
+  },
+  "devDependencies": {
+    "tape": "^5.0.1"
+  },
+  "dependencies": {
+    "pull-stream": "^3.6.14"
+  }
 }
