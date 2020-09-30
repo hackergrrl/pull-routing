@@ -1,6 +1,7 @@
 # pull-router
 
-> A through pull-stream that multiplexes to several sinks based on router rules.
+> A special pull-stream sink that multiplexes to several sinks based on router
+> rules.
 
 ## Usage
 

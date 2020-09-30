@@ -24,23 +24,18 @@ module.exports = function () {
   }
 
   const stream = function (read) {
-    // console.log(id, 'checking all', predicates.length, 'routes:', allRoutesReady())
     if (!allRoutesReady()) {
-      // console.log(id, 'routes aint ready!')
       pendingRead = () => {
         pendingRead = null
-        // console.log(id, 'calling mah kid delayed')
         read(null, next)
       }
     } else {
-      // console.log(id, 'calling mah kid immediatement')
       read(null, next)
     }
 
     function next (abort, data) {
-      // TODO: handle abort; this means passing the 'abort' value to ALL sink routes & ending
+      // handle abort; this means passing the 'abort' value to ALL sink routes & ending
       if (abort) {
-        // console.log('src wanted to abort: shut er down boys!')
         end = abort
         predicates.forEach(route => {
           if (route.cb) route.cb(abort)
@@ -49,8 +44,6 @@ module.exports = function () {
         return
       }
 
-      // console.log('ROUTER: got', data)
-
       // check routes for a match
       let found = false
       for (var i=0; i < predicates.length; i++) {
@@ -58,7 +51,6 @@ module.exports = function () {
         if (route.fn(data)) {
           found = true
           pendingRead = () => {
-            // console.log('ROUTER: pendingRead called! now reading from our source!')
             pendingRead = null
             read(null, next)
           }
@@ -70,9 +62,7 @@ module.exports = function () {
       }
 
       if (!found) {
-        console.log('ROUTER: no route for data')
         pendingRead = () => {
-          // console.log('ROUTER: pendingRead called! now reading from our source!')
           pendingRead = null
           read(null, next)
         }
@@ -87,7 +77,6 @@ module.exports = function () {
   stream.addRoute = function (predicateFn, sink) {
     const fakeSource = function (abort, cb) {
       if (abort) {
-        // console.log('removing ended route', abort)
         removeRoute(route.id)
         if (allRoutesReady() && pendingRead) {
           pendingRead()
@@ -96,7 +85,6 @@ module.exports = function () {
       }
 
       route.cb = cb
-      // console.log(id, 'ROUTER: route called its virtual router sink!', allRoutesReady(), !!pendingRead)
       if (allRoutesReady() && pendingRead) {
         pendingRead()
       }
