@@ -1,4 +1,4 @@
-# pull-router
+# pull-routing
 
 > A special pull-stream sink that multiplexes to several sinks based on router
 > rules.
@@ -6,7 +6,7 @@
 ## Usage
 
 ```js
-var Router = require('pull-router')
+var Router = require('pull-routing')
 const pull = require('pull-stream')
 
 const router = Router()
@@ -39,7 +39,7 @@ ODD 3
 ## API
 
 ```js
-const Router = require('pull-router')
+const Router = require('pull-routing')
 ```
 
 ### `const router = Router()`
@@ -63,7 +63,7 @@ stream).
 With [npm](https://npmjs.org/) installed, run
 
 ```
-$ npm install pull-router
+$ npm install pull-routing
 ```
 
 ## License
