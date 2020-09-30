@@ -2,7 +2,7 @@
   "name": "pull-routing",
   "description": "",
   "author": "Kira Oakley <kira@eight.net>",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
