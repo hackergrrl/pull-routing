@@ -7,9 +7,6 @@
 // added. If you don't want this, you can add a catch-all route and discard
 // them.
 
-// TODO: way to control which streams ending/erroring should end the whole
-// router.
-
 const pull = require('pull-stream')
 
 module.exports = function () {
